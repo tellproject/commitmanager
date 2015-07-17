@@ -1,5 +1,7 @@
 #include <commitmanager/SnapshotDescriptor.hpp>
 
+#include <commitmanager/Descriptor.hpp>
+
 #include <crossbow/infinio/ByteBuffer.hpp>
 #include <crossbow/logger.hpp>
 
@@ -9,6 +11,19 @@
 
 namespace tell {
 namespace commitmanager {
+
+std::unique_ptr<SnapshotDescriptor> SnapshotDescriptor::create(uint64_t lowestActiveVersion,
+        const Descriptor& descriptor) {
+    auto descLen = descriptorLength(descriptor.baseVersion(), descriptor.lastVersion());
+
+    std::unique_ptr<SnapshotDescriptor> snapshot(new (descLen) SnapshotDescriptor(lowestActiveVersion,
+            descriptor.baseVersion(), descriptor.lastVersion()));
+    if (snapshot) {
+        crossbow::infinio::BufferWriter writer(snapshot->data(), descLen);
+        descriptor.serialize(writer);
+    }
+    return snapshot;
+}
 
 std::unique_ptr<SnapshotDescriptor> SnapshotDescriptor::create(uint64_t lowestActiveVersion, uint64_t baseVersion,
         uint64_t version, const char* descriptor) {

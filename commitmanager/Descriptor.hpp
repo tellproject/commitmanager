@@ -64,7 +64,7 @@ private:
 
     static constexpr size_t BITS_PER_BLOCK = sizeof(BlockType) * 8u;
 
-    static constexpr size_t CAPACITY = 128ull;
+    static constexpr size_t CAPACITY = 32768ull;
 
     static size_t blockIndex(uint64_t version) {
         return (((version - 1) / BITS_PER_BLOCK) % CAPACITY);

@@ -18,8 +18,7 @@ void ServerSocket::onRequest(crossbow::infinio::MessageId messageId, uint32_t me
 
 ServerManager::ServerManager(crossbow::infinio::InfinibandService& service, const ServerConfig& config)
         : Base(service, config.port),
-          mProcessor(service.createProcessor()),
-          mLowestActiveVersion(0x1u) {
+          mProcessor(service.createProcessor()) {
 }
 
 ServerSocket* ServerManager::createConnection(crossbow::infinio::InfinibandSocket socket,
@@ -54,21 +53,15 @@ void ServerManager::onMessage(ServerSocket* con, crossbow::infinio::MessageId me
 
 void ServerManager::handleStartTransaction(ServerSocket* con, crossbow::infinio::MessageId messageId,
         crossbow::infinio::BufferReader& /* message */) {
-    auto version = mDescriptor.startTransaction();
-    if (version == 0x0u) {
+    if (!mCommitManager.startTransaction()) {
         con->writeErrorResponse(messageId, error::transaction_limit_reached);
         return;
     }
-    mReaders.emplace(version, mDescriptor.baseVersion());
 
-    auto descLen = mDescriptor.serializedLength();
-    uint32_t messageLength = (4 * sizeof(uint64_t)) + descLen;
-    con->writeResponse(messageId, ResponseType::START, messageLength, [this, version]
+    auto messageLength = mCommitManager.serializedLength();
+    con->writeResponse(messageId, ResponseType::START, messageLength, [this]
             (crossbow::infinio::BufferWriter& message, std::error_code& /* ec */) {
-        message.write<uint64_t>(mLowestActiveVersion);
-        message.write<uint64_t>(mDescriptor.baseVersion());
-        message.write<uint64_t>(version);
-        mDescriptor.serialize(message);
+        mCommitManager.serializeSnapshot(message);
     });
 }
 
@@ -76,23 +69,13 @@ void ServerManager::handleCommitTransaction(ServerSocket* con, crossbow::infinio
         crossbow::infinio::BufferReader& message) {
     auto version = message.read<uint64_t>();
 
-    auto succeeded = mDescriptor.commitTransaction(version);
-
-    updateLowestActiveVersion();
+    auto succeeded = mCommitManager.commitTransaction(version);
 
     uint32_t messageLength = sizeof(uint8_t);
     con->writeResponse(messageId, ResponseType::COMMIT, messageLength, [succeeded]
             (crossbow::infinio::BufferWriter& message, std::error_code& /* ec */) {
         message.write<uint8_t>(succeeded ? 0x1u : 0x0u);
     });
-}
-
-void ServerManager::updateLowestActiveVersion() {
-    while (!mReaders.empty() && mDescriptor.isCommitted(mReaders.front().version)) {
-        mReaders.pop();
-    }
-
-    mLowestActiveVersion = (mReaders.empty() ? mDescriptor.baseVersion() : mReaders.front().baseVersion);
 }
 
 } // namespace commitmanager

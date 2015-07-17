@@ -38,15 +38,34 @@ find_package(Jemalloc REQUIRED)
 
 
 ###################
+# CommitManager common
+###################
+set(COMMON_SRCS
+    commitmanager/CommitManager.hpp
+    commitmanager/Descriptor.hpp
+    commitmanager/SnapshotDescriptor.hpp
+    common/CommitManager.cpp
+    common/Descriptor.cpp
+    common/SnapshotDescriptor.cpp
+)
+
+# Add CommitManager common library
+add_library(commitmanager-common STATIC ${COMMON_SRCS})
+target_include_directories(commitmanager-common PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+
+# Link against Crossbow
+target_include_directories(commitmanager-common PRIVATE ${Crossbow_INCLUDE_DIRS})
+target_link_libraries(commitmanager-common PRIVATE crossbow_infinio crossbow_logger)
+
+
+###################
 # CommitManager client
 ###################
 set(CLIENT_SRCS
-    client/ClientSocket.cpp
-    client/SnapshotDescriptor.cpp
     commitmanager/ClientSocket.hpp
     commitmanager/ErrorCode.hpp
     commitmanager/MessageTypes.hpp
-    commitmanager/SnapshotDescriptor.hpp
+    client/ClientSocket.cpp
 )
 
 # Add CommitManager client library
@@ -54,6 +73,9 @@ add_library(commitmanager-client STATIC ${CLIENT_SRCS})
 target_include_directories(commitmanager-client PUBLIC
         $<INSTALL_INTERFACE:$<INSTALL_PREFIX>/${INCLUDE_INSTALL_DIR}>
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>)
+
+# Link against CommitManager common
+target_link_libraries(commitmanager-client PRIVATE commitmanager-common)
 
 # Link against Crossbow
 target_include_directories(commitmanager-client PRIVATE ${Crossbow_INCLUDE_DIRS})
@@ -76,8 +98,6 @@ install(EXPORT CommitManagerClientTargets DESTINATION ${CMAKE_INSTALL_DIR})
 # CommitManager server
 ###################
 set(SERVER_SRCS
-    server/Descriptor.cpp
-    server/Descriptor.hpp
     server/ServerConfig.hpp
     server/ServerSocket.cpp
     server/ServerSocket.hpp
@@ -86,6 +106,9 @@ set(SERVER_SRCS
 # Add CommitManager server executable
 add_executable(commitmanagerd server/main.cpp ${SERVER_SRCS})
 target_include_directories(commitmanagerd PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+
+# Link against CommitManager common
+target_link_libraries(commitmanagerd PRIVATE commitmanager-common)
 
 # Link against Crossbow
 target_include_directories(commitmanagerd PRIVATE ${Crossbow_INCLUDE_DIRS})

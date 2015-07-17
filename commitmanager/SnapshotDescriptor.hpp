@@ -18,11 +18,15 @@ class BufferWriter;
 namespace tell {
 namespace commitmanager {
 
+class Descriptor;
+
 /**
  * @brief Descriptor containing information about the versions a transaction is allowed to read
  */
 class SnapshotDescriptor final : crossbow::non_copyable, crossbow::non_movable {
 public: // Construction
+    static std::unique_ptr<SnapshotDescriptor> create(uint64_t lowestActiveVersion, const Descriptor& descriptor);
+
     static std::unique_ptr<SnapshotDescriptor> create(uint64_t lowestActiveVersion, uint64_t baseVersion,
             uint64_t version, const char* descriptor);
 

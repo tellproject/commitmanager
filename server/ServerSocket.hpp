@@ -1,16 +1,15 @@
 #pragma once
 
-#include "Descriptor.hpp"
 #include "ServerConfig.hpp"
+
+#include <commitmanager/CommitManager.hpp>
 
 #include <crossbow/infinio/ByteBuffer.hpp>
 #include <crossbow/infinio/InfinibandService.hpp>
 #include <crossbow/infinio/InfinibandSocket.hpp>
 #include <crossbow/infinio/RpcServer.hpp>
 
-#include <cstdint>
 #include <memory>
-#include <queue>
 
 namespace tell {
 namespace commitmanager {
@@ -49,16 +48,6 @@ private:
     friend Base;
     friend class ServerSocket;
 
-    struct Reader {
-        Reader(uint64_t v, uint64_t b)
-                : version(v),
-                  baseVersion(b) {
-        }
-
-        uint64_t version;
-        uint64_t baseVersion;
-    };
-
     ServerSocket* createConnection(crossbow::infinio::InfinibandSocket socket, const crossbow::string& data);
 
     void onMessage(ServerSocket* con, crossbow::infinio::MessageId messageId, uint32_t messageType,
@@ -70,13 +59,9 @@ private:
     void handleCommitTransaction(ServerSocket* con, crossbow::infinio::MessageId messageId,
             crossbow::infinio::BufferReader& message);
 
-    void updateLowestActiveVersion();
-
     std::unique_ptr<crossbow::infinio::InfinibandProcessor> mProcessor;
 
-    uint64_t mLowestActiveVersion;
-    std::queue<Reader> mReaders;
-    Descriptor mDescriptor;
+    CommitManager mCommitManager;
 };
 
 } // namespace commitmanager
