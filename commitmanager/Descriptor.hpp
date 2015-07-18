@@ -24,7 +24,8 @@ class Descriptor {
 public: // Construction
     Descriptor()
             : mBaseVersion(0x0u),
-              mLastVersion(0x0u) {
+              mLastVersion(0x0u),
+              mDescriptor({}) {
     }
 
 public: // Serialization
