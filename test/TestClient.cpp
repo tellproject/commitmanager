@@ -1,20 +1,19 @@
 #include <commitmanager/ClientSocket.hpp>
 
+#include <crossbow/infinio/Endpoint.hpp>
 #include <crossbow/infinio/InfinibandService.hpp>
 #include <crossbow/logger.hpp>
 #include <crossbow/program_options.hpp>
 
 int main(int argc, const char** argv) {
-    crossbow::string server = "";
-    uint16_t port = 7242;
+    crossbow::string commitManagerHost;
     bool help = false;
     crossbow::string logLevel("DEBUG");
 
     auto opts = crossbow::program_options::create_options(argv[0],
             crossbow::program_options::value<'h'>("help", &help),
             crossbow::program_options::value<'l'>("log-level", &logLevel),
-            crossbow::program_options::value<'s'>("server", &server),
-            crossbow::program_options::value<'p'>("port", &port));
+            crossbow::program_options::value<'c'>("commit-manager", &commitManagerHost));
 
     try {
         crossbow::program_options::parse(opts, argc, argv);
@@ -42,7 +41,7 @@ int main(int argc, const char** argv) {
 
     auto processor = service.createProcessor();
     tell::commitmanager::ClientSocket client(service.createSocket(*processor));
-    client.connect(server, port);
+    client.connect(crossbow::infinio::Endpoint(crossbow::infinio::Endpoint::ipv4(), commitManagerHost));
 
     processor->executeFiber([&client] (crossbow::infinio::Fiber& fiber) {
         LOG_INFO("Starting transaction");

@@ -13,10 +13,10 @@ void CommitResponse::processResponse(crossbow::infinio::BufferReader& message) {
     setResult(message.read<uint8_t>() != 0x0u);
 }
 
-void ClientSocket::connect(const crossbow::string& host, uint16_t port) {
-    LOG_INFO("Connecting to CommitManager server %1%:%2%", host, port);
+void ClientSocket::connect(const crossbow::infinio::Endpoint& host) {
+    LOG_INFO("Connecting to CommitManager server %1%", host);
 
-    crossbow::infinio::RpcClientSocket::connect(host, port, crossbow::string{});
+    crossbow::infinio::RpcClientSocket::connect(host, crossbow::string{});
 }
 
 void ClientSocket::shutdown() {

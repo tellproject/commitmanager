@@ -67,7 +67,7 @@ class ClientSocket final : public crossbow::infinio::RpcClientSocket {
 public:
     using Base::Base;
 
-    void connect(const crossbow::string& host, uint16_t port);
+    void connect(const crossbow::infinio::Endpoint& host);
 
     void shutdown();
 
