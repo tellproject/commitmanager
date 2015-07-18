@@ -1,5 +1,7 @@
 #pragma once
 
+#include <commitmanager/SnapshotDescriptor.hpp>
+
 #include <array>
 #include <cstdint>
 
@@ -30,10 +32,7 @@ public: // Construction
 
 public: // Serialization
     size_t serializedLength() const {
-        if (mLastVersion == mBaseVersion) {
-            return 0x0u;
-        }
-        return (((mLastVersion - 1) / BITS_PER_BLOCK) - (mBaseVersion / BITS_PER_BLOCK) + 1) * sizeof(BlockType);
+        return SnapshotDescriptor::descriptorLength(mBaseVersion, mLastVersion);
     }
 
     /**
@@ -61,16 +60,15 @@ public: // Version
     bool isCommitted(uint64_t version) const;
 
 private:
-    using BlockType = uint8_t;
+    using BlockType = SnapshotDescriptor::BlockType;
 
-    static constexpr size_t BITS_PER_BLOCK = sizeof(BlockType) * 8u;
+    static constexpr size_t BITS_PER_BLOCK = SnapshotDescriptor::BITS_PER_BLOCK;
 
     static constexpr size_t CAPACITY = 32768ull;
 
     static size_t blockIndex(uint64_t version) {
         return (((version - 1) / BITS_PER_BLOCK) % CAPACITY);
     }
-
 
     void updateBaseVersion();
 

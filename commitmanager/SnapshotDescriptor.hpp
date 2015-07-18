@@ -41,6 +41,13 @@ public: // Construction
 public: // Serialization
     static std::unique_ptr<SnapshotDescriptor> deserialize(crossbow::infinio::BufferReader& reader);
 
+    static size_t descriptorLength(uint64_t baseVersion, uint64_t lastVersion) {
+        if (baseVersion == lastVersion) {
+            return 0x0u;
+        }
+        return (((lastVersion - 1) / BITS_PER_BLOCK) - (baseVersion / BITS_PER_BLOCK) + 1) * sizeof(BlockType);
+    }
+
     size_t serializedLength() const {
         return (3 * sizeof(uint64_t)) + descriptorLength(mBaseVersion, mVersion);
     }
@@ -49,6 +56,8 @@ public: // Serialization
 
 public: // Version
     using BlockType = uint8_t;
+
+    static constexpr size_t BITS_PER_BLOCK = sizeof(BlockType) * 8u;
 
     uint64_t lowestActiveVersion() const {
         return mLowestActiveVersion;
@@ -81,12 +90,6 @@ public: // Version
 
 private:
     friend std::ostream& operator<<(std::ostream& out, const SnapshotDescriptor& rhs);
-
-    static constexpr size_t BITS_PER_BLOCK = sizeof(BlockType) * 8u;
-
-    static size_t descriptorLength(uint64_t baseVersion, uint64_t lastVersion) {
-        return (baseVersion == lastVersion ? 0 : ((lastVersion - (baseVersion + 1)) / BITS_PER_BLOCK));
-    }
 
     SnapshotDescriptor(uint64_t lowestActiveVersion, uint64_t baseVersion, uint64_t version)
             : mLowestActiveVersion(lowestActiveVersion),
