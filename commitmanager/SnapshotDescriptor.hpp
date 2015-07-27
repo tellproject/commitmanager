@@ -9,10 +9,8 @@
 #include <new>
 
 namespace crossbow {
-namespace infinio {
-class BufferReader;
-class BufferWriter;
-} // namespace infinio
+class buffer_reader;
+class buffer_writer;
 } // namespace crossbow
 
 namespace tell {
@@ -39,7 +37,7 @@ public: // Construction
     void operator delete[](void* ptr) = delete;
 
 public: // Serialization
-    static std::unique_ptr<SnapshotDescriptor> deserialize(crossbow::infinio::BufferReader& reader);
+    static std::unique_ptr<SnapshotDescriptor> deserialize(crossbow::buffer_reader& reader);
 
     static size_t descriptorLength(uint64_t baseVersion, uint64_t lastVersion) {
         if (baseVersion == lastVersion) {
@@ -52,7 +50,7 @@ public: // Serialization
         return (3 * sizeof(uint64_t)) + descriptorLength(mBaseVersion, mVersion);
     }
 
-    void serialize(crossbow::infinio::BufferWriter& writer) const;
+    void serialize(crossbow::buffer_writer& writer) const;
 
 public: // Version
     using BlockType = uint8_t;

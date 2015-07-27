@@ -5,11 +5,11 @@
 namespace tell {
 namespace commitmanager {
 
-void StartResponse::processResponse(crossbow::infinio::BufferReader& message) {
+void StartResponse::processResponse(crossbow::buffer_reader& message) {
     setResult(SnapshotDescriptor::deserialize(message));
 }
 
-void CommitResponse::processResponse(crossbow::infinio::BufferReader& message) {
+void CommitResponse::processResponse(crossbow::buffer_reader& message) {
     setResult(message.read<uint8_t>() != 0x0u);
 }
 
@@ -29,7 +29,7 @@ std::shared_ptr<StartResponse> ClientSocket::startTransaction(crossbow::infinio:
     auto response = std::make_shared<StartResponse>(fiber);
 
     uint32_t messageLength = 0x0u;
-    sendRequest(response, RequestType::START, messageLength, [] (crossbow::infinio::BufferWriter& message,
+    sendRequest(response, RequestType::START, messageLength, [] (crossbow::buffer_writer& /* message */,
             std::error_code& /* ec */) {
     });
 
@@ -40,7 +40,7 @@ std::shared_ptr<CommitResponse> ClientSocket::commitTransaction(crossbow::infini
     auto response = std::make_shared<CommitResponse>(fiber);
 
     uint32_t messageLength = sizeof(uint64_t);
-    sendRequest(response, RequestType::COMMIT, messageLength, [version] (crossbow::infinio::BufferWriter& message,
+    sendRequest(response, RequestType::COMMIT, messageLength, [version] (crossbow::buffer_writer& message,
             std::error_code& /* ec */) {
         message.write<uint64_t>(version);
     });

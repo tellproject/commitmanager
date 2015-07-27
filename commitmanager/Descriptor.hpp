@@ -6,9 +6,7 @@
 #include <cstdint>
 
 namespace crossbow {
-namespace infinio {
-class BufferWriter;
-} // namespace infinio
+class buffer_writer;
 } // namespace crossbow
 
 namespace tell {
@@ -42,7 +40,7 @@ public: // Serialization
      *
      * @param writer Writer to serialize the descriptor to
      */
-    void serialize(crossbow::infinio::BufferWriter& writer) const;
+    void serialize(crossbow::buffer_writer& writer) const;
 
 public: // Version
     uint64_t baseVersion() const {

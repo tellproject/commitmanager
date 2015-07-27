@@ -4,7 +4,7 @@
 
 #include <commitmanager/CommitManager.hpp>
 
-#include <crossbow/infinio/ByteBuffer.hpp>
+#include <crossbow/byte_buffer.hpp>
 #include <crossbow/infinio/InfinibandService.hpp>
 #include <crossbow/infinio/InfinibandSocket.hpp>
 #include <crossbow/infinio/RpcServer.hpp>
@@ -34,8 +34,7 @@ private:
     friend Base;
     friend class ServerManager;
 
-    void onRequest(crossbow::infinio::MessageId messageId, uint32_t messageType,
-            crossbow::infinio::BufferReader& message);
+    void onRequest(crossbow::infinio::MessageId messageId, uint32_t messageType, crossbow::buffer_reader& message);
 };
 
 class ServerManager : public crossbow::infinio::RpcServerManager<ServerManager, ServerSocket> {
@@ -51,13 +50,13 @@ private:
     ServerSocket* createConnection(crossbow::infinio::InfinibandSocket socket, const crossbow::string& data);
 
     void onMessage(ServerSocket* con, crossbow::infinio::MessageId messageId, uint32_t messageType,
-            crossbow::infinio::BufferReader& message);
+            crossbow::buffer_reader& message);
 
     void handleStartTransaction(ServerSocket* con, crossbow::infinio::MessageId messageId,
-            crossbow::infinio::BufferReader& message);
+            crossbow::buffer_reader& message);
 
     void handleCommitTransaction(ServerSocket* con, crossbow::infinio::MessageId messageId,
-            crossbow::infinio::BufferReader& message);
+            crossbow::buffer_reader& message);
 
     std::unique_ptr<crossbow::infinio::InfinibandProcessor> mProcessor;
 

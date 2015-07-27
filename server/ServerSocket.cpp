@@ -12,7 +12,7 @@ namespace tell {
 namespace commitmanager {
 
 void ServerSocket::onRequest(crossbow::infinio::MessageId messageId, uint32_t messageType,
-        crossbow::infinio::BufferReader& message) {
+        crossbow::buffer_reader& message) {
     manager().onMessage(this, messageId, messageType, message);
 }
 
@@ -27,7 +27,7 @@ ServerSocket* ServerManager::createConnection(crossbow::infinio::InfinibandSocke
 }
 
 void ServerManager::onMessage(ServerSocket* con, crossbow::infinio::MessageId messageId, uint32_t messageType,
-        crossbow::infinio::BufferReader& message) {
+        crossbow::buffer_reader& message) {
     LOG_TRACE("MID %1%] Handling request of type %2%", messageId.userId(), messageType);
     auto startTime = std::chrono::steady_clock::now();
 
@@ -52,7 +52,7 @@ void ServerManager::onMessage(ServerSocket* con, crossbow::infinio::MessageId me
 }
 
 void ServerManager::handleStartTransaction(ServerSocket* con, crossbow::infinio::MessageId messageId,
-        crossbow::infinio::BufferReader& /* message */) {
+        crossbow::buffer_reader& /* message */) {
     if (!mCommitManager.startTransaction()) {
         con->writeErrorResponse(messageId, error::transaction_limit_reached);
         return;
@@ -60,20 +60,20 @@ void ServerManager::handleStartTransaction(ServerSocket* con, crossbow::infinio:
 
     auto messageLength = mCommitManager.serializedLength();
     con->writeResponse(messageId, ResponseType::START, messageLength, [this]
-            (crossbow::infinio::BufferWriter& message, std::error_code& /* ec */) {
+            (crossbow::buffer_writer& message, std::error_code& /* ec */) {
         mCommitManager.serializeSnapshot(message);
     });
 }
 
 void ServerManager::handleCommitTransaction(ServerSocket* con, crossbow::infinio::MessageId messageId,
-        crossbow::infinio::BufferReader& message) {
+        crossbow::buffer_reader& message) {
     auto version = message.read<uint64_t>();
 
     auto succeeded = mCommitManager.commitTransaction(version);
 
     uint32_t messageLength = sizeof(uint8_t);
     con->writeResponse(messageId, ResponseType::COMMIT, messageLength, [succeeded]
-            (crossbow::infinio::BufferWriter& message, std::error_code& /* ec */) {
+            (crossbow::buffer_writer& message, std::error_code& /* ec */) {
         message.write<uint8_t>(succeeded ? 0x1u : 0x0u);
     });
 }

@@ -25,4 +25,4 @@ set_target_properties(commitmanager-common PROPERTIES PUBLIC_HEADER "${COMMON_PU
 
 # Link against Crossbow
 target_include_directories(commitmanager-common PRIVATE ${Crossbow_INCLUDE_DIRS})
-target_link_libraries(commitmanager-common PRIVATE crossbow_infinio crossbow_logger)
+target_link_libraries(commitmanager-common PRIVATE crossbow_logger)

@@ -8,9 +8,7 @@
 #include <queue>
 
 namespace crossbow {
-namespace infinio {
-class BufferWriter;
-} // namespace infinio
+class buffer_writer;
 } // namespace crossbow
 
 namespace tell {
@@ -33,7 +31,7 @@ public:
         return (3 * sizeof(uint64_t)) + mDescriptor.serializedLength();
     }
 
-    void serializeSnapshot(crossbow::infinio::BufferWriter& writer) const;
+    void serializeSnapshot(crossbow::buffer_writer& writer) const;
 
     uint64_t lowestActiveVersion() const {
         return mLowestActiveVersion;

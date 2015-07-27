@@ -32,7 +32,7 @@ private:
         return error::get_error_category();
     }
 
-    void processResponse(crossbow::infinio::BufferReader& message);
+    void processResponse(crossbow::buffer_reader& message);
 };
 
 /**
@@ -53,7 +53,7 @@ private:
         return error::get_error_category();
     }
 
-    void processResponse(crossbow::infinio::BufferReader& message);
+    void processResponse(crossbow::buffer_reader& message);
 };
 
 /**

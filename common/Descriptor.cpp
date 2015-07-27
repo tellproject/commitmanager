@@ -1,6 +1,6 @@
 #include "commitmanager/Descriptor.hpp"
 
-#include <crossbow/infinio/ByteBuffer.hpp>
+#include <crossbow/byte_buffer.hpp>
 #include <crossbow/logger.hpp>
 
 #include <algorithm>
@@ -8,7 +8,7 @@
 namespace tell {
 namespace commitmanager {
 
-void Descriptor::serialize(crossbow::infinio::BufferWriter& writer) const {
+void Descriptor::serialize(crossbow::buffer_writer& writer) const {
     if (mBaseVersion == mLastVersion) {
         return;
     }

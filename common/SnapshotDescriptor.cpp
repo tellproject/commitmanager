@@ -2,7 +2,7 @@
 
 #include <commitmanager/Descriptor.hpp>
 
-#include <crossbow/infinio/ByteBuffer.hpp>
+#include <crossbow/byte_buffer.hpp>
 #include <crossbow/logger.hpp>
 
 #include <cstdlib>
@@ -19,7 +19,7 @@ std::unique_ptr<SnapshotDescriptor> SnapshotDescriptor::create(uint64_t lowestAc
     std::unique_ptr<SnapshotDescriptor> snapshot(new (descLen) SnapshotDescriptor(lowestActiveVersion,
             descriptor.baseVersion(), descriptor.lastVersion()));
     if (snapshot) {
-        crossbow::infinio::BufferWriter writer(snapshot->data(), descLen);
+        crossbow::buffer_writer writer(snapshot->data(), descLen);
         descriptor.serialize(writer);
     }
     return snapshot;
@@ -46,7 +46,7 @@ void SnapshotDescriptor::operator delete(void* ptr) {
     ::free(ptr);
 }
 
-std::unique_ptr<SnapshotDescriptor> SnapshotDescriptor::deserialize(crossbow::infinio::BufferReader& reader) {
+std::unique_ptr<SnapshotDescriptor> SnapshotDescriptor::deserialize(crossbow::buffer_reader& reader) {
     auto lowestActiveVersion = reader.read<uint64_t>();
     auto baseVersion = reader.read<uint64_t>();
     auto version = reader.read<uint64_t>();
@@ -60,7 +60,7 @@ std::unique_ptr<SnapshotDescriptor> SnapshotDescriptor::deserialize(crossbow::in
     return snapshot;
 }
 
-void SnapshotDescriptor::serialize(crossbow::infinio::BufferWriter& writer) const {
+void SnapshotDescriptor::serialize(crossbow::buffer_writer& writer) const {
     writer.write<uint64_t>(mLowestActiveVersion);
     writer.write<uint64_t>(mBaseVersion);
     writer.write<uint64_t>(mVersion);

@@ -1,11 +1,11 @@
 #include <commitmanager/CommitManager.hpp>
 
-#include <crossbow/infinio/ByteBuffer.hpp>
+#include <crossbow/byte_buffer.hpp>
 
 namespace tell {
 namespace commitmanager {
 
-void CommitManager::serializeSnapshot(crossbow::infinio::BufferWriter& writer) const {
+void CommitManager::serializeSnapshot(crossbow::buffer_writer& writer) const {
     writer.write<uint64_t>(mLowestActiveVersion);
     writer.write<uint64_t>(mDescriptor.baseVersion());
     writer.write<uint64_t>(mDescriptor.lastVersion());
