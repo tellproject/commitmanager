@@ -81,7 +81,7 @@ public: // Version
             return false;
         }
 
-        auto block = reinterpret_cast<const BlockType*>(data())[(version - (mBaseVersion + 1)) / BITS_PER_BLOCK];
+        auto block = reinterpret_cast<const BlockType*>(data())[blockIndex(version)];
         auto mask = (0x1u << ((version - 1) % BITS_PER_BLOCK));
         return (block & mask) != 0x0u;
     }
@@ -93,6 +93,10 @@ private:
             : mLowestActiveVersion(lowestActiveVersion),
               mBaseVersion(baseVersion),
               mVersion(version) {
+    }
+
+    size_t blockIndex(uint64_t version) const {
+        return (((version - 1) / BITS_PER_BLOCK) - (mBaseVersion / BITS_PER_BLOCK));
     }
 
     char* data() {
