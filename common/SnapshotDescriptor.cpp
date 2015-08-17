@@ -8,6 +8,7 @@
 #include <cstdlib>
 #include <cstring>
 #include <iostream>
+#include <stdexcept>
 
 namespace tell {
 namespace commitmanager {
@@ -47,24 +48,36 @@ void SnapshotDescriptor::operator delete(void* ptr) {
 }
 
 std::unique_ptr<SnapshotDescriptor> SnapshotDescriptor::deserialize(crossbow::buffer_reader& reader) {
+    if (!reader.canRead(3 * sizeof(uint64_t))) {
+        throw std::length_error("Input buffer too small for snapshot header");
+    }
     auto lowestActiveVersion = reader.read<uint64_t>();
     auto baseVersion = reader.read<uint64_t>();
     auto version = reader.read<uint64_t>();
+
     auto descLen = descriptorLength(baseVersion, version);
+    if (!reader.canRead(descLen)) {
+        throw std::length_error("Input buffer too small for descriptor");
+    }
+    auto descriptor = reader.read(descLen);
 
     std::unique_ptr<SnapshotDescriptor> snapshot(new (descLen) SnapshotDescriptor(lowestActiveVersion, baseVersion,
             version));
     if (snapshot) {
-        memcpy(snapshot->data(), reader.read(descLen), descLen);
+        memcpy(snapshot->data(), descriptor, descLen);
     }
     return snapshot;
 }
 
 void SnapshotDescriptor::serialize(crossbow::buffer_writer& writer) const {
+    auto descLen = descriptorLength(mBaseVersion, mVersion);
+    if (!writer.canWrite(3 * sizeof(uint64_t) + descLen)) {
+        throw std::length_error("Output buffer too small for snapshot");
+    }
     writer.write<uint64_t>(mLowestActiveVersion);
     writer.write<uint64_t>(mBaseVersion);
     writer.write<uint64_t>(mVersion);
-    writer.write(data(), descriptorLength(mBaseVersion, mVersion));
+    writer.write(data(), descLen);
 }
 
 std::ostream& operator<<(std::ostream& out, const SnapshotDescriptor& rhs) {

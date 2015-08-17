@@ -4,17 +4,25 @@
 #include <crossbow/logger.hpp>
 
 #include <algorithm>
+#include <stdexcept>
 
 namespace tell {
 namespace commitmanager {
 
 void Descriptor::serialize(crossbow::buffer_writer& writer) const {
     if (mBaseVersion == mLastVersion) {
-        return;
+        throw std::range_error("Descriptor does not contain any versions");
     }
 
     auto startIndex = blockIndex(mBaseVersion + 1);
     auto endIndex = blockIndex(mLastVersion);
+    auto descLen = ((endIndex < startIndex ? CAPACITY - startIndex + endIndex : endIndex - startIndex) + 1)
+            * sizeof(BlockType);
+    LOG_ASSERT(descLen == serializedLength(), "Sizes do not match");
+    if (!writer.canWrite(descLen)) {
+        throw std::length_error("Output buffer too small for descriptor");
+    }
+
     if (endIndex < startIndex) {
         writer.write(&mDescriptor[startIndex], (CAPACITY - startIndex) * sizeof(BlockType));
         startIndex = 0;
