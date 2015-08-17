@@ -71,8 +71,19 @@ std::ostream& operator<<(std::ostream& out, const SnapshotDescriptor& rhs) {
     out << "SnapshotDescriptor ["
            "Lowest Active Version = " << rhs.mLowestActiveVersion << ", "
            "Base Version = " << rhs.mBaseVersion << ", "
-           "Version = " << rhs.mVersion << "]";
-    // TODO Print versions
+           "Version = " << rhs.mVersion << ", "
+           "Descriptor = [";
+
+    auto first = true;
+    for (auto i = rhs.mBaseVersion + 1u; i <= rhs.mVersion; ++i) {
+        if (i % 8u == 1u || first) {
+            out << (first ? "[" : " [") << i << "] ";
+            first = false;
+        }
+        out << (rhs.inReadSet(i) ? "x" : "-");
+    }
+    out << "]]";
+
     return out;
 }
 
