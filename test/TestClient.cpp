@@ -45,7 +45,7 @@ int main(int argc, const char** argv) {
 
     processor->executeFiber([&client] (crossbow::infinio::Fiber& fiber) {
         LOG_INFO("Starting transaction");
-        auto startResponse = client.startTransaction(fiber);
+        auto startResponse = client.startTransaction(fiber, false);
         if (!startResponse->waitForResult()) {
             auto& ec = startResponse->error();
             LOG_INFO("Error while starting transaction [error = %1% %2%]", ec, ec.message());

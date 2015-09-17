@@ -18,8 +18,8 @@ void CommitManager::serializeSnapshot(crossbow::buffer_writer& writer) const {
     mDescriptor.serialize(writer);
 }
 
-bool CommitManager::startTransaction() {
-    auto version = mDescriptor.startTransaction();
+bool CommitManager::startTransaction(bool readonly) {
+    auto version = mDescriptor.startTransaction(readonly);
     if (version == 0x0u) {
         return false;
     }

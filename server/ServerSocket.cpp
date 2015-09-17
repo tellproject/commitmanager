@@ -58,8 +58,9 @@ void ServerManager::onMessage(ServerSocket* con, crossbow::infinio::MessageId me
 }
 
 void ServerManager::handleStartTransaction(ServerSocket* con, crossbow::infinio::MessageId messageId,
-        crossbow::buffer_reader& /* message */) {
-    if (!mCommitManager.startTransaction()) {
+        crossbow::buffer_reader& message) {
+    auto readonly = (message.read<uint8_t>() != 0x0u);
+    if (!mCommitManager.startTransaction(readonly)) {
         con->writeErrorResponse(messageId, error::transaction_limit_reached);
         return;
     }

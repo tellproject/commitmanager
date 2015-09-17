@@ -25,12 +25,13 @@ void ClientSocket::shutdown() {
     crossbow::infinio::RpcClientSocket::shutdown();
 }
 
-std::shared_ptr<StartResponse> ClientSocket::startTransaction(crossbow::infinio::Fiber& fiber) {
+std::shared_ptr<StartResponse> ClientSocket::startTransaction(crossbow::infinio::Fiber& fiber, bool readonly) {
     auto response = std::make_shared<StartResponse>(fiber);
 
-    uint32_t messageLength = 0x0u;
-    sendRequest(response, RequestType::START, messageLength, [] (crossbow::buffer_writer& /* message */,
+    uint32_t messageLength = sizeof(uint8_t);
+    sendRequest(response, RequestType::START, messageLength, [readonly] (crossbow::buffer_writer& message,
             std::error_code& /* ec */) {
+        message.write<uint8_t>(readonly ? 0x1u : 0x0u);
     });
 
     return response;

@@ -37,7 +37,7 @@ public:
         return mLowestActiveVersion;
     }
 
-    bool startTransaction();
+    bool startTransaction(bool readonly);
 
     bool commitTransaction(uint64_t version);
 

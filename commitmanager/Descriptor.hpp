@@ -51,7 +51,7 @@ public: // Version
         return mLastVersion;
     }
 
-    uint64_t startTransaction();
+    uint64_t startTransaction(bool readOnly);
 
     bool commitTransaction(uint64_t version);
 
@@ -62,11 +62,13 @@ private:
 
     static constexpr size_t BITS_PER_BLOCK = SnapshotDescriptor::BITS_PER_BLOCK;
 
-    static constexpr size_t CAPACITY = 32768ull;
+    static constexpr size_t CAPACITY = 64 * 1024ull;
 
     static size_t blockIndex(uint64_t version) {
         return (((version - 1) / BITS_PER_BLOCK) % CAPACITY);
     }
+
+    void commitVersion(uint64_t version);
 
     void updateBaseVersion();
 

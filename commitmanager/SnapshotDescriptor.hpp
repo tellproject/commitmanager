@@ -40,7 +40,7 @@ public: // Serialization
     static std::unique_ptr<SnapshotDescriptor> deserialize(crossbow::buffer_reader& reader);
 
     static size_t descriptorLength(uint64_t baseVersion, uint64_t lastVersion) {
-        if (baseVersion == lastVersion) {
+        if (baseVersion >= lastVersion) {
             return 0x0u;
         }
         return (((lastVersion - 1) / BITS_PER_BLOCK) - (baseVersion / BITS_PER_BLOCK) + 1) * sizeof(BlockType);

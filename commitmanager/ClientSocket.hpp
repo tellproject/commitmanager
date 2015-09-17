@@ -71,7 +71,7 @@ public:
 
     void shutdown();
 
-    std::shared_ptr<StartResponse> startTransaction(crossbow::infinio::Fiber& fiber);
+    std::shared_ptr<StartResponse> startTransaction(crossbow::infinio::Fiber& fiber, bool readonly);
 
     std::shared_ptr<CommitResponse> commitTransaction(crossbow::infinio::Fiber& fiber, uint64_t version);
 };

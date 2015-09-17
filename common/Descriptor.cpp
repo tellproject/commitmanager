@@ -10,8 +10,8 @@ namespace tell {
 namespace commitmanager {
 
 void Descriptor::serialize(crossbow::buffer_writer& writer) const {
-    if (mBaseVersion == mLastVersion) {
-        throw std::range_error("Descriptor does not contain any versions");
+    if (mBaseVersion >= mLastVersion) {
+        return;
     }
 
     auto startIndex = blockIndex(mBaseVersion + 1);
@@ -34,28 +34,29 @@ void Descriptor::serialize(crossbow::buffer_writer& writer) const {
     writer.write<BlockType>(endBlock);
 }
 
-uint64_t Descriptor::startTransaction() {
+uint64_t Descriptor::startTransaction(bool readOnly) {
     if (mBaseVersion + (CAPACITY * BITS_PER_BLOCK) == mLastVersion) {
         return 0x0u;
     }
 
-    return ++mLastVersion;
+    auto version = ++mLastVersion;
+
+    if (readOnly) {
+        commitVersion(version);
+    }
+
+    return version;
 }
 
 bool Descriptor::commitTransaction(uint64_t version) {
-    if (version <= mBaseVersion || version > mLastVersion) {
+    if (version > mLastVersion) {
         LOG_ERROR("Trying to commit invalid version %1%", version);
         return false;
     }
 
-    auto index = blockIndex(version);
-    auto mask = (0x1u << ((version -  1) % BITS_PER_BLOCK));
-    mDescriptor[index] |= mask;
-
-    if (version == mBaseVersion + 1) {
-        updateBaseVersion();
+    if (version > mBaseVersion) {
+        commitVersion(version);
     }
-
     return true;
 }
 
@@ -70,6 +71,16 @@ bool Descriptor::isCommitted(uint64_t version) const {
     auto index = blockIndex(version);
     auto mask = (0x1u << ((version -  1) % BITS_PER_BLOCK));
     return (mDescriptor[index] & mask) != 0x0u;
+}
+
+void Descriptor::commitVersion(uint64_t version) {
+    auto index = blockIndex(version);
+    auto mask = (0x1u << ((version -  1) % BITS_PER_BLOCK));
+    mDescriptor[index] |= mask;
+
+    if (version == mBaseVersion + 1) {
+        updateBaseVersion();
+    }
 }
 
 void Descriptor::updateBaseVersion() {
