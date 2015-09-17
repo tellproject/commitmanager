@@ -28,8 +28,11 @@ ServerSocket* ServerManager::createConnection(crossbow::infinio::InfinibandSocke
 
 void ServerManager::onMessage(ServerSocket* con, crossbow::infinio::MessageId messageId, uint32_t messageType,
         crossbow::buffer_reader& message) {
+#ifdef NDEBUG
+#else
     LOG_TRACE("MID %1%] Handling request of type %2%", messageId.userId(), messageType);
     auto startTime = std::chrono::steady_clock::now();
+#endif
 
     switch (messageType) {
 
@@ -46,9 +49,12 @@ void ServerManager::onMessage(ServerSocket* con, crossbow::infinio::MessageId me
     } break;
     }
 
+#ifdef NDEBUG
+#else
     auto endTime = std::chrono::steady_clock::now();
     auto duration = std::chrono::duration_cast<std::chrono::nanoseconds>(endTime - startTime);
     LOG_TRACE("MID %1%] Handling request took %2%ns", messageId.userId(), duration.count());
+#endif
 }
 
 void ServerManager::handleStartTransaction(ServerSocket* con, crossbow::infinio::MessageId messageId,
