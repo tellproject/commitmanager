@@ -86,6 +86,10 @@ public: // Version
         return (block & mask) != 0x0u;
     }
 
+    bool inReadSet(uint64_t validFrom, uint64_t validTo) const {
+        return (inReadSet(validFrom) && !inReadSet(validTo));
+    }
+
 private:
     friend std::ostream& operator<<(std::ostream& out, const SnapshotDescriptor& rhs);
 
