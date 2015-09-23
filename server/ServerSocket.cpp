@@ -18,12 +18,13 @@ void ServerSocket::onRequest(crossbow::infinio::MessageId messageId, uint32_t me
 
 ServerManager::ServerManager(crossbow::infinio::InfinibandService& service, const ServerConfig& config)
         : Base(service, config.port),
-          mProcessor(service.createProcessor()) {
+          mProcessor(service.createProcessor()),
+          mMaxBatchSize(config.maxBatchSize) {
 }
 
 ServerSocket* ServerManager::createConnection(crossbow::infinio::InfinibandSocket socket,
         const crossbow::string& data) {
-    return new ServerSocket(*this, *mProcessor, std::move(socket));
+    return new ServerSocket(*this, *mProcessor, std::move(socket), mMaxBatchSize);
 }
 
 void ServerManager::onMessage(ServerSocket* con, crossbow::infinio::MessageId messageId, uint32_t messageType,

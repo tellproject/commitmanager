@@ -26,8 +26,8 @@ class ServerSocket : public crossbow::infinio::RpcServerSocket<ServerManager, Se
 
 public:
     ServerSocket(ServerManager& manager, crossbow::infinio::InfinibandProcessor& processor,
-            crossbow::infinio::InfinibandSocket socket)
-            : Base(manager, processor, std::move(socket), crossbow::string()) {
+            crossbow::infinio::InfinibandSocket socket, size_t maxBatchSize)
+            : Base(manager, processor, std::move(socket), crossbow::string(), maxBatchSize) {
     }
 
 private:
@@ -59,6 +59,8 @@ private:
             crossbow::buffer_reader& message);
 
     std::unique_ptr<crossbow::infinio::InfinibandProcessor> mProcessor;
+
+    size_t mMaxBatchSize;
 
     CommitManager mCommitManager;
 };
