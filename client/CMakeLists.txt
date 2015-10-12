@@ -8,7 +8,6 @@ set(CLIENT_SRCS
 set(CLIENT_PUBLIC_HDR
     ClientSocket.hpp
     ErrorCode.hpp
-    MessageTypes.hpp
 )
 
 # Transform public header list to use absolute paths

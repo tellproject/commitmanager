@@ -20,6 +20,7 @@
  *     Kevin Bocksrocker <kevin.bocksrocker@gmail.com>
  *     Lucas Braun <braunl@inf.ethz.ch>
  */
+
 #include <commitmanager/ClientSocket.hpp>
 
 #include <crossbow/logger.hpp>
@@ -38,7 +39,7 @@ void CommitResponse::processResponse(crossbow::buffer_reader& message) {
 void ClientSocket::connect(const crossbow::infinio::Endpoint& host) {
     LOG_INFO("Connecting to CommitManager server %1%", host);
 
-    crossbow::infinio::RpcClientSocket::connect(host, crossbow::string{});
+    crossbow::infinio::RpcClientSocket::connect(host, handshakeString());
 }
 
 void ClientSocket::shutdown() {

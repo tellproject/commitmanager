@@ -46,6 +46,16 @@ ServerManager::ServerManager(crossbow::infinio::InfinibandService& service, cons
 
 ServerSocket* ServerManager::createConnection(crossbow::infinio::InfinibandSocket socket,
         const crossbow::string& data) {
+    // The length of the data field may be larger than the actual data sent (behavior of librdma_cm) so check the
+    // handshake against the substring
+    auto& handshake = handshakeString();
+    if (data.size() < handshake.size() || data.substr(0, handshake.size()) != handshake) {
+        LOG_ERROR("Connection handshake failed");
+        socket->reject(crossbow::string());
+        return nullptr;
+    }
+
+    LOG_INFO("%1%] New client connection", socket->remoteAddress());
     return new ServerSocket(*this, *mProcessor, std::move(socket), mMaxBatchSize);
 }
 

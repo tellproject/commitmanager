@@ -4,12 +4,14 @@
 set(COMMON_SRCS
     CommitManager.cpp
     Descriptor.cpp
+    MessageTypes.cpp
     SnapshotDescriptor.cpp
 )
 
 set(COMMON_PUBLIC_HDR
     CommitManager.hpp
     Descriptor.hpp
+    MessageTypes.hpp
     SnapshotDescriptor.hpp
 )
 

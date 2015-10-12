@@ -21,35 +21,15 @@
  *     Lucas Braun <braunl@inf.ethz.ch>
  */
 
-#pragma once
-
-#include <cstdint>
-
-#include <crossbow/string.hpp>
+#include <commitmanager/MessageTypes.hpp>
 
 namespace tell {
 namespace commitmanager {
 
-/**
- * @brief Unique string sent as first argument in the connection handshake
- */
-const crossbow::string& handshakeString();
-
-/**
- * @brief The possible messages types of a request
- */
-enum class RequestType : uint32_t {
-    START = 0x1u,
-    COMMIT,
-};
-
-/**
- * @brief The possible messages types of a response
- */
-enum class ResponseType : uint32_t {
-    START = 0x1u,
-    COMMIT,
-};
+const crossbow::string& handshakeString() {
+    static crossbow::string str("COMMITMANAGER");
+    return str;
+}
 
 } // namespace commitmanager
 } // namespace tell
