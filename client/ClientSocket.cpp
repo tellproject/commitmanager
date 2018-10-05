@@ -37,7 +37,8 @@ void CommitResponse::processResponse(crossbow::buffer_reader& message) {
 }
 
 void ClientSocket::connect(const crossbow::infinio::Endpoint& host) {
-    LOG_INFO("Connecting to CommitManager server %1%", host);
+      
+          LOG_INFO("Connecting to CommitManager server %1%", host);
 
     crossbow::infinio::RpcClientSocket::connect(host, handshakeString());
 }
